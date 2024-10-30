@@ -21,22 +21,22 @@
                     <input type="text" id="location" name="location" placeholder="Enter postcode or town" required>
                 </div>
                 
-                <!-- Updated Date Selection: Row of Buttons -->
+                <!-- Updated Date Selection: Always Visible Date Range Inputs with Shortcut Buttons -->
                 <div class="form-group">
-                    <label>Date</label>
+                    <label>Date Range</label>
                     <div class="date-buttons">
                         <button type="button" class="date-btn" data-value="today">Today</button>
                         <button type="button" class="date-btn" data-value="tomorrow">Tomorrow</button>
                         <button type="button" class="date-btn" data-value="weekend">This Weekend</button>
                         <button type="button" class="date-btn" data-value="next7">Next 7 Days</button>
-                        <button type="button" class="date-btn" id="custom-range-btn">Custom Range</button>
+                        <button type="button" class="date-btn" data-value="custom">Custom Range</button>
                     </div>
-                    <!-- Hidden Custom Range Inputs -->
-                    <div id="custom-range" class="custom-range hidden">
+                    <!-- Always Visible Custom Range Inputs -->
+                    <div class="custom-range">
                         <label for="start-date">Start Date</label>
-                        <input type="date" id="start-date" name="start-date">
+                        <input type="date" id="start-date" name="start-date" required>
                         <label for="end-date">End Date</label>
-                        <input type="date" id="end-date" name="end-date">
+                        <input type="date" id="end-date" name="end-date" required>
                     </div>
                 </div>
                 
