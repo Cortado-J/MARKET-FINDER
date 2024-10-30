@@ -167,26 +167,33 @@ dateButtons.forEach(button => {
                 end = formatDate(tomorrow);
                 break;
             case 'weekend':
-                // Assuming weekend is Saturday and Sunday
-                const day = today.getDay();
+                // Determine the current day
+                const currentDay = today.getDay(); // 0 (Sunday) to 6 (Saturday)
                 const saturday = new Date(today);
-                saturday.setDate(today.getDate() + (6 - day));
-                const sunday = new Date(saturday);
-                sunday.setDate(saturday.getDate() + 1);
+                const sunday = new Date(today);
+
+                if (currentDay >= 1 && currentDay <= 5) { // Monday to Friday
+                    // Set to next Saturday
+                    saturday.setDate(today.getDate() + (6 - currentDay));
+                    sunday.setDate(saturday.getDate() + 1);
+                } else if (currentDay === 6) { // Saturday
+                    saturday.setDate(today.getDate());
+                    sunday.setDate(today.getDate() + 1);
+                } else if (currentDay === 0) { // Sunday
+                    saturday.setDate(today.getDate());
+                    sunday.setDate(today.getDate());
+                }
+
                 start = formatDate(saturday);
                 end = formatDate(sunday);
                 break;
             case 'next7':
                 const next7Start = new Date(today);
-                next7Start.setDate(next7Start.getDate() + 1);
                 const next7End = new Date(today);
-                next7End.setDate(next7End.getDate() + 7);
+                next7End.setDate(next7End.getDate() + 6);
                 start = formatDate(next7Start);
                 end = formatDate(next7End);
                 break;
-            case 'custom':
-                // Do not auto-set dates; allow user to manually select
-                return;
             default:
                 return;
         }
@@ -205,7 +212,7 @@ function formatDate(date) {
     return `${year}-${month}-${day}`;
 }
 
-// Initialize Leaflet Map with Default View
+// Initialize Leaflet Map with Marker Clustering
 function initializeMap(markets, location) {
     if (!map) {
         // Initialize the map
