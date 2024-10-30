@@ -1,4 +1,4 @@
-// Script to handle screen navigation, modal, date button selection, and Leaflet map integration
+// Script to handle screen navigation, modal, date button shortcuts, and Leaflet map integration
 
 // Elements
 const openingScreen = document.getElementById('opening-screen');
@@ -14,8 +14,6 @@ const closeButton = document.querySelector('.close-button');
 
 // Date Buttons
 const dateButtons = document.querySelectorAll('.date-btn');
-const customRangeBtn = document.getElementById('custom-range-btn');
-const customRange = document.getElementById('custom-range');
 const startDateInput = document.getElementById('start-date');
 const endDateInput = document.getElementById('end-date');
 
@@ -23,6 +21,7 @@ let selectedDateOption = ''; // To store the selected date option
 
 // Initialize Leaflet Map
 let map;
+let markersGroup;
 
 // Sample Market Data (Replace with dynamic data from backend)
 const markets = [
@@ -55,32 +54,36 @@ const markets = [
 searchForm.addEventListener('submit', function(e) {
     e.preventDefault();
     // Retrieve form data
-    const location = document.getElementById('location').value;
-    let dateRange = {};
+    const location = document.getElementById('location').value.trim();
+    const startDate = startDateInput.value;
+    const endDate = endDateInput.value;
 
-    if (selectedDateOption === 'custom') {
-        const startDate = startDateInput.value;
-        const endDate = endDateInput.value;
-        if (!startDate || !endDate) {
-            alert('Please select both start and end dates for the custom range.');
-            return;
-        }
-        dateRange = { type: 'custom', start: startDate, end: endDate };
-    } else {
-        dateRange = { type: selectedDateOption };
+    // Validate form inputs
+    if (!location) {
+        alert('Please enter a location.');
+        return;
     }
 
-    // Here you would handle the search logic, e.g., fetch data from the backend
-    console.log('Search Parameters:', { location, dateRange });
+    if (!startDate || !endDate) {
+        alert('Please select both start and end dates.');
+        return;
+    }
 
-    // For demonstration, we'll filter the sample data based on selectedDateOption
-    let filteredMarkets = [];
+    // Validate date range
+    if (new Date(startDate) > new Date(endDate)) {
+        alert('Start Date cannot be after End Date.');
+        return;
+    }
 
-    // Simple filtering logic (to be replaced with actual search logic)
-    filteredMarkets = markets.filter(market => {
-        // Implement date filtering based on dateRange.type
-        // This is a placeholder; you'd need to handle date comparisons properly
-        return true; // Return all for now
+    // Handle the search logic here (e.g., fetch data from the backend)
+    console.log('Search Parameters:', { location, startDate, endDate });
+
+    // For demonstration, we'll filter the sample data based on date range
+    let filteredMarkets = markets.filter(market => {
+        const marketDate = new Date(market.date);
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        return marketDate >= start && marketDate <= end;
     });
 
     // Update List View with filteredMarkets
@@ -148,16 +151,59 @@ dateButtons.forEach(button => {
         // Add active class to the clicked button
         this.classList.add('active');
 
-        // Check if the clicked button is Custom Range
-        if (this.id === 'custom-range-btn') {
-            customRange.classList.remove('hidden');
-            selectedDateOption = 'custom';
-        } else {
-            customRange.classList.add('hidden');
-            selectedDateOption = this.getAttribute('data-value');
+        // Determine the date range based on the button clicked
+        const today = new Date();
+        let start, end;
+
+        switch(this.getAttribute('data-value')) {
+            case 'today':
+                start = formatDate(today);
+                end = formatDate(today);
+                break;
+            case 'tomorrow':
+                const tomorrow = new Date(today);
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                start = formatDate(tomorrow);
+                end = formatDate(tomorrow);
+                break;
+            case 'weekend':
+                // Assuming weekend is Saturday and Sunday
+                const day = today.getDay();
+                const saturday = new Date(today);
+                saturday.setDate(today.getDate() + (6 - day));
+                const sunday = new Date(saturday);
+                sunday.setDate(saturday.getDate() + 1);
+                start = formatDate(saturday);
+                end = formatDate(sunday);
+                break;
+            case 'next7':
+                const next7Start = new Date(today);
+                next7Start.setDate(next7Start.getDate() + 1);
+                const next7End = new Date(today);
+                next7End.setDate(next7End.getDate() + 7);
+                start = formatDate(next7Start);
+                end = formatDate(next7End);
+                break;
+            case 'custom':
+                // Do not auto-set dates; allow user to manually select
+                return;
+            default:
+                return;
         }
+
+        // Set the start and end date inputs
+        startDateInput.value = start;
+        endDateInput.value = end;
     });
 });
+
+// Utility function to format Date object to YYYY-MM-DD
+function formatDate(date) {
+    const year = date.getFullYear();
+    const month = `${date.getMonth() + 1}`.padStart(2, '0'); // Months are zero-based
+    const day = `${date.getDate()}`.padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
 
 // Initialize Leaflet Map with Default View
 function initializeMap(markets, location) {
@@ -169,20 +215,20 @@ function initializeMap(markets, location) {
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
+
+        // Initialize Marker Cluster Group
+        markersGroup = L.markerClusterGroup();
+        map.addLayer(markersGroup);
     } else {
         // Reset the map view if already initialized
         map.setView([51.4545, -2.5879], 13);
         // Remove existing markers
-        map.eachLayer(function (layer) {
-            if (layer instanceof L.Marker) {
-                map.removeLayer(layer);
-            }
-        });
+        markersGroup.clearLayers();
     }
 
     // Add markers for each market
     markets.forEach(market => {
-        const marker = L.marker([market.latitude, market.longitude]).addTo(map);
+        const marker = L.marker([market.latitude, market.longitude]);
         marker.bindPopup(`<strong>${market.name}</strong><br>
                          Date: ${market.date}<br>
                          Type: ${market.type}<br>
@@ -192,6 +238,7 @@ function initializeMap(markets, location) {
         marker.on('click', function() {
             openMarketDetails(market);
         });
+        markersGroup.addLayer(marker);
     });
 }
 
