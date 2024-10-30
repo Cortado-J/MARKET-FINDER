@@ -49,6 +49,7 @@ select {
     border-radius: 4px;
 }
 
+/* Buttons */
 .btn {
     display: inline-block;
     padding: 10px 20px;
@@ -108,10 +109,11 @@ select {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
+    margin-bottom: 10px;
 }
 
 .date-btn {
-    flex: 1 1 48%; /* Adjust to fit two buttons per row on small screens */
+    flex: 1 1 48%; /* Two buttons per row on small screens */
     padding: 10px;
     background-color: #6c757d;
     color: #fff;
@@ -122,21 +124,30 @@ select {
     font-size: 14px;
 }
 
-.date-btn.active {
+.date-btn.active,
+.date-btn:focus {
     background-color: #28a745;
+    outline: none;
 }
 
 .date-btn:hover {
     background-color: #5a6268;
 }
 
-/* Custom Range */
+/* Custom Range Inputs */
 .custom-range {
-    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
-.hidden {
-    display: none;
+.custom-range label {
+    flex: 1 1 100%;
+    font-weight: bold;
+}
+
+.custom-range input[type="date"] {
+    flex: 1 1 48%; /* Two inputs per row */
 }
 
 /* Map View */
@@ -198,6 +209,10 @@ select {
     }
 
     .date-btn {
+        flex: 1 1 100%;
+    }
+
+    .custom-range input[type="date"] {
         flex: 1 1 100%;
     }
 
