@@ -5,7 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UK Markets Finder</title>
     <link rel="stylesheet" href="styles.css">
-    <!-- You can include Bootstrap or any other CSS framework here for better styling -->
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-sA+4kPtuXYKqz9h4GC3FyP9QEMNq84S1Lsv2L7LF+Qc="
+        crossorigin=""/>
 </head>
 <body>
     <!-- Opening Screen -->
@@ -17,17 +20,26 @@
                     <label for="location">Location</label>
                     <input type="text" id="location" name="location" placeholder="Enter postcode or town" required>
                 </div>
+                
+                <!-- Updated Date Selection: Row of Buttons -->
                 <div class="form-group">
-                    <label for="date">Date</label>
-                    <select id="date" name="date" required>
-                        <option value="">Select Date</option>
-                        <option value="today">Today</option>
-                        <option value="tomorrow">Tomorrow</option>
-                        <option value="weekend">This Weekend</option>
-                        <option value="next7">Next 7 Days</option>
-                        <option value="custom">Custom Range</option>
-                    </select>
+                    <label>Date</label>
+                    <div class="date-buttons">
+                        <button type="button" class="date-btn" data-value="today">Today</button>
+                        <button type="button" class="date-btn" data-value="tomorrow">Tomorrow</button>
+                        <button type="button" class="date-btn" data-value="weekend">This Weekend</button>
+                        <button type="button" class="date-btn" data-value="next7">Next 7 Days</button>
+                        <button type="button" class="date-btn" id="custom-range-btn">Custom Range</button>
+                    </div>
+                    <!-- Hidden Custom Range Inputs -->
+                    <div id="custom-range" class="custom-range hidden">
+                        <label for="start-date">Start Date</label>
+                        <input type="date" id="start-date" name="start-date">
+                        <label for="end-date">End Date</label>
+                        <input type="date" id="end-date" name="end-date">
+                    </div>
                 </div>
+                
                 <button type="submit" class="btn">Search</button>
             </form>
         </div>
@@ -66,10 +78,7 @@
             </div>
             <!-- Map View -->
             <div id="map-view" class="view">
-                <div id="map-container">
-                    <!-- Integrate Google Maps or Mapbox here -->
-                    <p>Map will be displayed here.</p>
-                </div>
+                <div id="map-container"></div>
             </div>
         </div>
     </section>
@@ -90,6 +99,10 @@
         </div>
     </div>
 
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-o9N1jv1KnpPTmCU6md0TPjZ1pOTkD0KEFvyG4cqU+3M="
+        crossorigin=""></script>
     <script src="script.js"></script>
 </body>
 </html>
