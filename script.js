@@ -1,4 +1,4 @@
-// Script to handle screen navigation, modal, date button selection, and map integration
+// Script to handle screen navigation, modal, date button selection, and Leaflet map integration
 
 // Elements
 const openingScreen = document.getElementById('opening-screen');
@@ -83,8 +83,8 @@ searchForm.addEventListener('submit', function(e) {
         return true; // Return all for now
     });
 
-    // Update List View (Here we simply log it; you can dynamically update the DOM)
-    // For this mockup, the list is static. Implement dynamic rendering as needed.
+    // Update List View with filteredMarkets
+    updateListView(filteredMarkets);
 
     // Initialize or Update Map
     initializeMap(filteredMarkets, location);
@@ -115,7 +115,16 @@ mapViewBtn.addEventListener('click', function() {
 });
 
 // Function to open Market Details Modal
-function openMarketDetails() {
+function openMarketDetails(market) {
+    document.getElementById('modal-name').textContent = market.name;
+    document.getElementById('modal-location').textContent = `Latitude: ${market.latitude}, Longitude: ${market.longitude}`;
+    document.getElementById('modal-type').textContent = market.type;
+    document.getElementById('modal-stalls').textContent = market.stalls;
+    document.getElementById('modal-schedule').textContent = market.date; // Placeholder
+    document.getElementById('modal-website').href = market.website;
+    document.getElementById('modal-website').textContent = market.website;
+    document.getElementById('modal-contact').textContent = market.contact;
+
     marketDetailsModal.style.display = 'block';
 }
 
@@ -180,5 +189,33 @@ function initializeMap(markets, location) {
                          Stalls: ${market.stalls}<br>
                          <a href="${market.website}" target="_blank">Website</a><br>
                          Contact: ${market.contact}`);
+        marker.on('click', function() {
+            openMarketDetails(market);
+        });
+    });
+}
+
+// Function to update the list view with filtered markets
+function updateListView(filteredMarkets) {
+    const marketList = document.getElementById('market-list');
+    marketList.innerHTML = ''; // Clear existing list
+
+    if (filteredMarkets.length === 0) {
+        marketList.innerHTML = '<li>No markets found for the selected criteria.</li>';
+        return;
+    }
+
+    filteredMarkets.forEach(market => {
+        const listItem = document.createElement('li');
+        listItem.className = 'market-item';
+        listItem.innerHTML = `
+            <h3>${market.name}</h3>
+            <p>Date: ${market.date}</p>
+            <p>Type: ${market.type}</p>
+            <p>Stalls: ${market.stalls}</p>
+            <p>Distance: ${market.distance}</p>
+        `;
+        listItem.addEventListener('click', () => openMarketDetails(market));
+        marketList.appendChild(listItem);
     });
 }
